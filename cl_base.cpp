@@ -28,6 +28,7 @@ cl_base::cl_base() {
 cl_base* cl_base::heads = new cl_base();
 
 cl_base::~cl_base() {
+    get_root()->delete_links(this);
 	for (int i = 0; i < this->sub_objects.size(); i++) {
 		delete sub_objects[i];
 	}
@@ -175,17 +176,17 @@ bool cl_base::delete_sub_object(string s_name) {
 	}
 	return false;
 }
-//Факультатив КВ_3
-// Метод поиска по деревеу .
-// Метод поиска от текущего объекта /
-cl_base* cl_base::get_root() {//Поиск для корневого объекта
+//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ_3
+// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ .
+// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ /
+cl_base* cl_base::get_root() {//пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	cl_base* p_root = this;
 	while (p_root->get_head_object() != nullptr) {
 		p_root = p_root->get_head_object();
 	}
 	return p_root;
 }
-cl_base* cl_base::find_obj_by_coord(string s_coord) {//Поиск объекта по координате
+cl_base* cl_base::find_obj_by_coord(string s_coord) {//пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	string s_nam;
 	int i_slash_2;
 	cl_base* p_obj = nullptr;
@@ -241,7 +242,7 @@ cl_base* cl_base::find_obj_by_coord(string s_coord) {//Поиск объекта по координа
 		}
 	}
 }
-//Факультатив КВ_4
+//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ_4
 void cl_base::set_connection(TYPE_SIGNAL p_signal, cl_base* p_target, TYPE_HANDLER
 	p_handler) {
 	o_sh* p_value;
@@ -257,11 +258,11 @@ void cl_base::set_connection(TYPE_SIGNAL p_signal, cl_base* p_target, TYPE_HANDL
 	p_value->p_handler = p_handler;
 	connects.push_back(p_value);
 }
-void cl_base::delete_connection(TYPE_SIGNAL p_signal, cl_base* p_target,
-	TYPE_HANDLER p_handler) {
+void cl_base::delete_connection(TYPE_SIGNAL p_signal, cl_base* p_target,TYPE_HANDLER p_handler) {
+    //РЅРµРїСЂР°РІРёР»СЊРЅС‹Р№ РјРµС‚РѕРґ
+
 	for (int i = 0; i < connects.size(); i++) {
-		if (connects[i]->p_signal == p_signal && connects[i]->p_target ==
-			p_target && connects[i]->p_handler == p_handler) {
+		if (connects[i]->p_signal == p_signal && connects[i]->p_target == p_target && connects[i]->p_handler == p_handler) {
 			connects.erase(connects.begin() + i);
 		}
 	}
@@ -281,14 +282,14 @@ string cl_base::get_absolute_way() {
 	if (way.empty()) way = "/";
 	return way;
 }
-void cl_base::emit_signal(TYPE_SIGNAL p_signal, string& command) {
+void cl_base::emit_signal(TYPE_SIGNAL p_signal, string& msg) {
 	
 	if (this->state == 0)
 		return;
 	TYPE_HANDLER p_handler;
 	cl_base* obj;
 	//call signal method
-	(this->*p_signal)(command);
+	(this->*p_signal)(msg);
 	//iterate on every handler
 	if (this->flag) {
 		for (int i = 0; i < connects.size(); i++) {
@@ -297,7 +298,7 @@ void cl_base::emit_signal(TYPE_SIGNAL p_signal, string& command) {
 				obj = connects[i]->p_target;
 				if (obj->state != 0) {
 					//call handler method
-					(obj->*p_handler)(command);
+					(obj->*p_handler)(msg);
 				}
 			}
 		}
@@ -311,4 +312,50 @@ void cl_base::setFullReadiness() {
 	for (auto sub : sub_objects) {
 		sub->setFullReadiness();
 	}
+}
+
+void cl_base::delete_links(cl_base *p_target) {
+    //РјРµС‚РѕРґ СѓРґР°Р»РµРЅРёСЏ СЃРІСЏР·РµР№
+    for (int i = 0; i < this->connects.size(); ++i) {
+        if(this->connects[i]->p_target == p_target) {
+            delete this->connects[i];
+            this->connects.erase(connects.begin() + i);
+        }
+    }
+
+    for(auto p_sub: sub_objects) {
+        p_sub->delete_links(p_target);
+    }
+}
+
+void cl_base::set_count_talk(int count_talk) {
+    this->count_talk = count_talk;
+}
+
+void cl_base::set_sum_calls(int sum_calls) {
+    this->sum_calls = sum_calls;
+}
+
+void cl_base::set_count_call(int count_call) {
+    this->count_call = count_call;
+}
+
+void cl_base::set_is_free(bool is_free) {
+    this->is_free = is_free;
+}
+
+int cl_base::get_count_talk() {
+    return count_talk;
+}
+
+int cl_base::get_sum_calls() {
+    return sum_calls;
+}
+
+int cl_base::get_count_call() {
+    return count_call;
+}
+
+bool cl_base::get_is_free() {
+    return is_free;
 }

@@ -11,18 +11,18 @@ using namespace std;
 class cl_base;
 typedef void (cl_base::* TYPE_SIGNAL)(string& msg);
 typedef void (cl_base::* TYPE_HANDLER)(string msg);
+
+struct journal
+{
+    int takt;
+    string type;
+    string number;
+    int time_talk;
+};
 struct o_sh {
 	TYPE_SIGNAL p_signal;
 	cl_base* p_target;
 	TYPE_HANDLER p_handler;
-};
-
-struct journal
-{
-	int takt = 0;
-	string first_number;
-	string second_number;
-	int time_talk = 0;
 };
 
 class cl_base {
@@ -35,8 +35,13 @@ protected:
 	vector <o_sh*> connects;
 	bool flag = true;
 	vector<string> numbers;
-	vector<journal*> journals_;
+    int count_call,sum_calls;
+    int count_talk;
+    bool is_free = true;
 public:
+    vector<journal> journal_list;
+    int tact = 0;
+    string c_cmd;
 	cl_base();
 	cl_base* s_now;
 	cl_base(cl_base* head_object, string s_name = "Base object");
@@ -58,15 +63,13 @@ public:
 	cl_base* find_object_from_current(string s_name);
 	cl_base * search_object_from_path(string s_path);
 	string get_absolute_way();
-	//Факультатив КВ_3
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ_3
 	cl_base* find_obj_by_coord(string s_coord);
 	cl_base* get_root();
-	//Факультатив КВ_4
-	void set_connection(TYPE_SIGNAL p_signal, cl_base* p_target, TYPE_HANDLER
-		p_handler);
-	void delete_connection(TYPE_SIGNAL p_signal, cl_base* p_target, TYPE_HANDLER
-		p_handler);
-	void emit_signal(TYPE_SIGNAL p_signal, string& command);
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ_4
+	void set_connection(TYPE_SIGNAL p_signal, cl_base* p_target, TYPE_HANDLER p_handler);
+	void delete_connection(TYPE_SIGNAL p_signal, cl_base* p_target, TYPE_HANDLER p_handler);
+	void emit_signal(TYPE_SIGNAL p_signal, string& msg);
 	TYPE_SIGNAL get_signal(cl_base* object);
 	TYPE_HANDLER get_handler(cl_base* object);
 	int number = 1;
@@ -76,5 +79,18 @@ public:
 	friend class cl_4;
 	friend class cl_5;
 
+    void delete_links(cl_base* p_target);
+
+
+    void set_count_call(int count_call);
+    void set_sum_calls(int sum_calls);
+    void set_count_talk(int count_talk);
+    void set_is_free(bool is_free);
+
+    bool get_is_free();
+    int get_count_call();
+    int get_sum_calls();
+    int get_count_talk();
+    string exet;
 };
 #endif //UNTITLED9_CL_BASE_H
